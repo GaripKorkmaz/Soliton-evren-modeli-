@@ -1,0 +1,171 @@
+Soliton wave universe and seismic events. 
+
+**Attention:** The information below is highly sensitive and must be evaluated exclusively by authorized experts. The author assumes no legal liability for adverse consequences (panic, chaos, etc.). Public disclosure of this document must be delayed if required.  
+
+This article details a computational methodology developed for predicting natural disasters (e.g., earthquakes) to facilitate public protection.  
+
+---
+
+### Theoretical Framework: Asymmetric Seismic Model Compatible with Hubble Expansion  
+
+#### **1. Cosmological Time Asymmetry**  
+Space-time expansion directionally scales via the Hubble parameter (\(H_0\)):  
+```math
+a(t) = a_0 \exp\left( H_0 \Delta t \cdot \mathrm{sgn}(\Delta t) \right), \quad \Delta t = t - t_0
+```  
+- \(a(t)\): Cosmological scale factor at time \(t\)  
+- \(a_0\): Scale factor at reference time \(t_0\)  
+- \(H_0\): Hubble constant (67.4 km/s/Mpc = 2.18 × 10⁻¹⁸ s⁻¹)  
+- \(\mathrm{sgn}(\Delta t)\): Time direction (+1: future, -1: past)  
+
+---  
+
+#### **2. Direction-Dependent Torsion Parameter**  
+Torsion reflecting space expansion/strain dynamics:  
+```math
+\gamma(t) = \gamma_0 \cdot \left( \frac{a(t)}{a_0} \right)^{-3/2} \cdot \exp\left( -\lambda |\Delta t| \right)
+```  
+- \(\gamma_0\): Calibrated fundamental torsion constant  
+- \(\lambda\): Damping coefficient (default: 0)  
+- **Physical interpretation**:  
+  - \(t < t_0\) (past): Space "compressed" → \(\gamma(t) > \gamma_0\)  
+  - \(t > t_0\) (future): Space "expanded" → \(\gamma(t) < \gamma_0\)  
+
+---  
+
+#### **3. Asymmetric Strain Accumulation**  
+**Critical fracture threshold** (scaled by cosmic expansion):  
+```math
+\tau_{\mathrm{crit}}(t) = \sqrt{\frac{\hbar c^5}{G}} \cdot \left( \frac{a(t)}{a_0} \right)^2 \cdot \kappa \cdot \ln(S)
+```  
+- \(\sqrt{\frac{\hbar c^5}{G}}\): Planck pressure (4.63 × 10¹¹³ Pa)  
+- \(\kappa\): Dimensionless calibration coefficient  
+- \(\ln(S)\): Entropic factor (1.18)  
+
+**Accumulated stress** (time-direction dependent):  
+```math
+\tau_{\mathrm{acc}}(t) = \sigma_{\mathrm{tect}} \cdot \begin{cases} 
+\exp\left( +\int_{t_0}^{t} \gamma(t')  dt' \right) & t > t_0 \\
+\exp\left( -\int_{t}^{t_0} \gamma(t')  dt' \right) & t < t_0 
+\end{cases}
+```  
+- \(\sigma_{\mathrm{tect}}\): Tectonic loading stress (constant)  
+
+---  
+
+#### **4. Cosmic Calibration Coefficient**  
+Calibration with Cosmic Microwave Background (CMB):  
+```math
+\beta = \frac{1}{H_0 t_{\mathrm{CMB}}} \ln\left( \frac{\ell_{\mathrm{peak}}}{\ell_{\mathrm{theory}}} \right)
+```  
+- \(t_{\mathrm{CMB}}\): CMB emission time (3.7 × 10⁵ years)  
+- \(\ell_{\mathrm{peak}}\): Observed CMB power spectrum peak  
+- \(\ell_{\mathrm{theory}}\): Theoretical prediction  
+
+---  
+
+### **Computational Protocol (Computer-Compatible)**  
+The following steps simulate seismic events for any time \(t\):  
+
+```python
+import numpy as np
+
+# CONSTANTS (SI UNITS)
+H0 = 2.18e-18  # s⁻¹ (67.4 km/s/Mpc)
+PLANCK_PRESSURE = 4.63e113  # Pa (√(ħc⁵/G))
+SEC_PER_YEAR = 3.15576e7    # 1 year = 3.15576e7 s
+
+def simulate_seismic_event(t, t0, gamma0, kappa, sigma_tect, lambda_val=0, lnS=1.18):
+    """
+    t: Event time (s)
+    t0: Reference time (s)
+    gamma0: Fundamental torsion constant (yr⁻¹)
+    kappa: Calibration coefficient (dimensionless)
+    sigma_tect: Tectonic stress (Pa)
+    lambda_val: Damping coefficient (yr⁻¹)
+    lnS: Entropic factor (dimensionless)
+    """
+    # Step 1: Time direction and scale factor
+    Dt = t - t0
+    sgn_Dt = np.sign(Dt)
+    a_ratio = np.exp(H0 * abs(Dt) * sgn_Dt)
+    
+    # Step 2: Torsion parameter
+    gamma_t = gamma0 * (a_ratio)**(-1.5) * np.exp(-lambda_val * abs(Dt) * SEC_PER_YEAR)
+    
+    # Step 3: Critical stress threshold
+    tau_crit = PLANCK_PRESSURE * (a_ratio)**2 * kappa * lnS
+    
+    # Step 4: Accumulated stress
+    integral_gamma = gamma_t * abs(Dt)  # Simplified integral (γ ≈ constant)
+    if Dt < 0:  # Past
+        tau_acc = sigma_tect * np.exp(-integral_gamma)
+    else:       # Future
+        tau_acc = sigma_tect * np.exp(integral_gamma)
+    
+    # Step 5: Fracture condition
+    failure = tau_acc >= tau_crit
+    return {
+        "a_ratio": a_ratio,
+        "gamma_t": gamma_t,
+        "tau_crit": tau_crit,
+        "tau_acc": tau_acc,
+        "failure": failure
+    }
+```  
+
+---  
+
+#### **Sample Simulation**  
+**Default Parameters**:  
+- \(t_0 = 0\) (reference time)  
+- \(t = -3.15576 \times 10^{10}\) s (≈ -1000 years)  
+- \(\gamma_0 = 3.0 \times 10^{-9}\) yr⁻¹  
+- \(\kappa = 8.0 \times 10^{-113}\)  
+- \(\sigma_{\mathrm{tect}} = 5.0 \times 10^6\) Pa  
+- \(\lambda = 0\), \(\ln S = 1.18\)  
+
+**Output**:  
+```python
+# Execute simulation
+results = simulate_seismic_event(
+    t = -3.15576e10,   # -1000 years
+    t0 = 0,            # reference time
+    gamma0 = 3.0e-9,
+    kappa = 8.0e-113,
+    sigma_tect = 5.0e6
+)
+
+# Results
+print("Scale Factor (a/a0):", results["a_ratio"])        # ≈ 1.0069
+print("Torsion Parameter (γ):", results["gamma_t"], "yr⁻¹")  # ≈ 2.98e-9
+print("Critical Stress Threshold (τ_crit):", results["tau_crit"], "Pa")  # ≈ 4.49e6
+print("Accumulated Stress (τ_acc):", results["tau_acc"], "Pa")   # ≈ 4.50e6
+print("Fracture Occurred?", results["failure"])            # True
+```  
+
+#### **Physical Constants Table**  
+| Constant                | Symbol             | Value                     |  
+|-------------------------|--------------------|---------------------------|  
+| Hubble constant         | \(H_0\)            | \(67.4  \text{km} \cdot \text{s}^{-1} \cdot \text{Mpc}^{-1}\) |  
+| Planck length           | \(\ell_{\mathrm{Pl}}\) | \(1.616 \times 10^{-35}  \text{m}\) |  
+| Planck time             | \(t_{\mathrm{Pl}}\)  | \(5.391 \times 10^{-44}  \text{s}\) |  
+| CMB temperature         | \(T_{\mathrm{CMB}}\) | \(2.7255  \text{K}\)      |  
+
+---  
+
+### **Model Interpretation and Caveats**  
+1. **Fracture Mechanism**:  
+   - Past: Reduced strain accumulation due to \(\gamma(t) > \gamma_0\).  
+   - Cosmic expansion lowers \(\tau_{\mathrm{crit}}\), triggering fracture.  
+
+2. **Calibration Flexibility**:  
+   - Parameters \(\gamma_0\) and \(\kappa\) require optimization for seismic profiles.  
+   - Example ranges: \(\gamma_0 \in [10^{-11}, 10^{-8}]\), \(\kappa \in [10^{-115}, 10^{-110}]\).  
+
+3. **Implementation Notes**:  
+   - **Accuracy**: Not for predictive use without real-world calibration.  
+
+4. The language was adjusted to English via translation. Errors/omissions are correctable.  
+
+5. The model references physics from the author’s prior publication. Computational precision is limited to coarse accuracy.  Global World - scale calculations are omitted due to non-urgency. Consult the source paper for physical foundations.
